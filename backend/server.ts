@@ -1,11 +1,12 @@
+import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import cors from "cors";
 
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import productRoutes from "./routes/product.routes.js";
+import uploadRoutes from "./routes/upload.routes.js";
 
 dotenv.config();
 
@@ -35,6 +36,9 @@ app.use("/api/admin", adminRoutes);
 
 //Product routes
 app.use("/api/products", productRoutes);
+
+//Upload routes
+app.use("/api/uploads", uploadRoutes);
 
 const PORT = process.env.PORT || 5000;
 

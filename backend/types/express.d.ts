@@ -1,4 +1,3 @@
-
 import type { UserRole } from "../models/User.js";
 
 declare global {

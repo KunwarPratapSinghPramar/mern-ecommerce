@@ -10,3 +10,16 @@ body {
   background: #f8fafc;
   color: #0f172a;
 }
+
+/* Hide number input spinner arrows in Chrome, Edge and Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input spinner arrows in Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

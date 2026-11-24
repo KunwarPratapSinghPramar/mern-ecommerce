@@ -4,6 +4,8 @@ import cors from "cors";
 import "dotenv/config";
 import { env } from "./config/env.js";
 
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "./config/swagger.js";
 import authRoutes from "./routes/auth.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import productRoutes from "./routes/product.routes.js";
@@ -45,6 +47,12 @@ app.use(
       ).rawBody = Buffer.from(buffer);
     },
   }),
+);
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument),
 );
 
 app.get("/", (_req, res) => {

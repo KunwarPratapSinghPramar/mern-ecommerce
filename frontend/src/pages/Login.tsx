@@ -1,14 +1,29 @@
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/useAuth";
 
+const SAVED_EMAILS_KEY = "mern-store-saved-login-emails";
+
+const getSavedEmails = (): string[] => {
+  try {
+    const saved = localStorage.getItem(SAVED_EMAILS_KEY);
+    const parsed: unknown = saved ? JSON.parse(saved) : [];
+
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string")
+      : [];
+  } catch {
+    return [];
+  }
+};
+
 const Login = () => {
   const { login, user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [savedEmails] = useState<string[]>(getSavedEmails);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,22 +32,40 @@ const Login = () => {
   }
 
   if (user) {
-    return <Navigate to={user.role === "admin" ? "/admin" : "/"} replace />;
+    const redirectPath =
+      user.role === "admin"
+        ? "/admin"
+        : user.role === "salesperson"
+          ? "/sales"
+          : "/";
+
+    return <Navigate to={redirectPath} replace />;
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
-    if (!email.trim() || !password) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
       setError("Please enter your email and password.");
       return;
     }
 
     try {
       setSubmitting(true);
-      await login(email.trim().toLowerCase(), password);
-      navigate("/", { replace: true });
+
+      await login(normalizedEmail, password);
+
+      const updatedEmails = [
+        normalizedEmail,
+        ...getSavedEmails().filter(
+          (savedEmail) => savedEmail !== normalizedEmail,
+        ),
+      ].slice(0, 10);
+
+      localStorage.setItem(SAVED_EMAILS_KEY, JSON.stringify(updatedEmails));
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || "Invalid email or password.");
@@ -54,7 +87,7 @@ const Login = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="on">
           <div>
             <label
               htmlFor="email"
@@ -62,16 +95,25 @@ const Login = () => {
             >
               Email address
             </label>
+
             <input
               id="email"
+              name="email"
               type="email"
-              autoComplete="email"
+              list="saved-login-emails"
+              autoComplete="username"
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
               className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
             />
+
+            <datalist id="saved-login-emails">
+              {savedEmails.map((savedEmail) => (
+                <option key={savedEmail} value={savedEmail} />
+              ))}
+            </datalist>
           </div>
 
           <div>
@@ -81,8 +123,10 @@ const Login = () => {
             >
               Password
             </label>
+
             <input
               id="password"
+              name="password"
               type="password"
               autoComplete="current-password"
               required

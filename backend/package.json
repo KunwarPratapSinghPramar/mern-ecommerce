@@ -7,7 +7,9 @@
     "dev": "tsx watch server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "seed:admin": "tsx scripts/seedAdmin.ts"
+    "seed:admin": "tsx scripts/seedAdmin.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",
@@ -31,6 +33,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.3.0",
     "@types/node": "^26.6.6",
+    "prettier": "^3.10.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }

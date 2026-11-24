@@ -8,7 +8,7 @@ const router = Router();
 router.post(
   "/images",
   protect,
-  authorize("admin"),
+  authorize("admin", "salesperson"),
   upload.array("images", 5),
   uploadProductImages,
 );

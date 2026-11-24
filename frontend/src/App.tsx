@@ -1,72 +1,59 @@
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 
 import AuthProvider from "./context/AuthProvider";
-import { useAuth } from "./context/useAuth";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import AppLayout from "./components/layout/AppLayout";
+import { useAuth } from "./context/useAuth";
 
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
+import OrderDetails from "./pages/OrderDetails";
 
-function Home() {
-  const { user, loading, logout } = useAuth();
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminProducts from "./pages/AdminProducts";
+import AdminOrders from "./pages/AdminOrders";
+import SalesOrders from "./pages/SalesOrders";
+import AdminUsers from "./pages/AdminUsers";
+import SalesDashboard from "./pages/SalesDashboard";
+import Wishlist from "./pages/Wishlist";
+
+function RoleBasedHome() {
+  const { user, loading } = useAuth();
 
   if (loading) {
-    return <h1 className="p-10 text-xl">Loading...</h1>;
+    return <div className="p-10 text-center">Checking your session...</div>;
   }
 
-  return (
-    <main className="min-h-screen bg-gray-100 p-10 text-gray-900">
-      <h1 className="mb-4 text-3xl font-bold">
-        MERN E-Commerce Store
-      </h1>
+  if (user?.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
 
-      {user ? (
-        <div>
-          <p>Welcome, {user.name}!</p>
-          <p>Your role: {user.role}</p>
+  if (user?.role === "salesperson") {
+    return <Navigate to="/sales" replace />;
+  }
 
-          {user.role === "admin" && (
-            <a
-              href="/admin"
-              className="mt-4 block text-blue-600 hover:underline"
-            >
-              Go to Admin Dashboard
-            </a>
-          )}
-
-          <button
-            onClick={logout}
-            className="mt-4 rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
-          >
-            Logout
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <p>You are not logged in.</p>
-          <div className="flex gap-4">
-            <a href="/login" className="text-blue-600 hover:underline">
-              Login
-            </a>
-            <a href="/register" className="text-blue-600 hover:underline">
-              Create account
-            </a>
-          </div>
-        </div>
-      )}
-    </main>
-  );
+  return <Home />;
 }
 
-function AdminDashboard() {
-  const { user } = useAuth();
-
+function NotFound() {
   return (
-    <main className="min-h-screen bg-gray-100 p-10">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-      <p className="mt-3">Welcome, {user?.name}.</p>
-    </main>
+    <div className="p-10 text-center">
+      <h1 className="text-3xl font-bold">404 - Page Not Found</h1>
+      <p className="mt-2 text-gray-500">
+        The page you are looking for does not exist.
+      </p>
+      <Link
+        to="/"
+        className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
+      >
+        Return to Store
+      </Link>
+    </div>
   );
 }
 
@@ -75,12 +62,48 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route element={<AppLayout />}>
+            {/* Role-based home */}
+            <Route path="/" element={<RoleBasedHome />} />
 
-          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
+            {/* Public pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/products/:id" element={<ProductDetails />} />
+
+            {/* Customer only */}
+            <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<MyOrders />} />
+              <Route path="/orders/:id" element={<OrderDetails />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+            </Route>
+
+            {/* Admin only */}
+            <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+            </Route>
+
+            {/* Admin and Sales Person */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={["admin", "salesperson"]} />
+              }
+            >
+              <Route path="/admin/products" element={<AdminProducts />} />
+            </Route>
+
+            {/* Sales Person only */}
+            <Route element={<ProtectedRoute allowedRoles={["salesperson"]} />}>
+              <Route path="/sales" element={<SalesDashboard />} />
+              <Route path="/sales/orders" element={<SalesOrders />} />
+            </Route>
+
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </BrowserRouter>

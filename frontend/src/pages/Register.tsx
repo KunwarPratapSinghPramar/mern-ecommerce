@@ -1,4 +1,3 @@
-
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -54,7 +53,8 @@ const Register = () => {
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(
-          err.response?.data?.message || "Registration failed. Please try again."
+          err.response?.data?.message ||
+            "Registration failed. Please try again.",
         );
       } else {
         setError("Something went wrong. Please try again.");
@@ -68,9 +68,7 @@ const Register = () => {
     <main className="flex min-h-screen items-center justify-center bg-gray-100 px-4 py-10">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Create Account
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
           <p className="mt-2 text-sm text-gray-500">
             Join our MERN E-Commerce store
           </p>
@@ -78,7 +76,10 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="mb-2 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="name"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
               Full name
             </label>
             <input
@@ -94,7 +95,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
               Email address
             </label>
             <input
@@ -110,7 +114,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
@@ -127,7 +134,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="mb-2 block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="confirmPassword"
+              className="mb-2 block text-sm font-medium text-gray-700"
+            >
               Confirm password
             </label>
             <input

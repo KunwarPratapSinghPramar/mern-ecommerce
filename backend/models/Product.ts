@@ -1,5 +1,4 @@
-
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface IProduct extends Document {
   name: string;
@@ -10,6 +9,7 @@ export interface IProduct extends Document {
   stock: number;
   images: string[];
   isFeatured: boolean;
+  owner?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,8 +44,12 @@ const productSchema = new Schema<IProduct>(
     stock: {
       type: Number,
       required: true,
-      min: 0,
+      min: [0, "Stock cannot be negative"],
       default: 0,
+      validate: {
+        validator: Number.isInteger,
+        message: "Stock must be a whole number",
+      },
     },
     images: {
       type: [String],
@@ -55,10 +59,16 @@ const productSchema = new Schema<IProduct>(
       type: Boolean,
       default: false,
     },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+      index: true,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Product = mongoose.model<IProduct>("Product", productSchema);

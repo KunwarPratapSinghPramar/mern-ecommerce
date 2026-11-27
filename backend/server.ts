@@ -25,13 +25,15 @@ const app = express();
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests without an Origin header, such as Postman.
+      console.log("Incoming request origin:", origin);
+      console.log("Allowed frontend origins:", env.clientUrls);
+
       if (!origin || env.clientUrls.includes(origin)) {
         callback(null, true);
         return;
       }
 
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     },
     credentials: true,
   }),
@@ -49,11 +51,7 @@ app.use(
   }),
 );
 
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument),
-);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get("/", (_req, res) => {
   res.json({
